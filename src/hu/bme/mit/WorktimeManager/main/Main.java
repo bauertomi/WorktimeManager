@@ -19,7 +19,6 @@ public class Main {
 	public final static int WINDOW_SIZE_Y = 600;
 	
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
 // A grafikus felĂĽletet a Swing sajĂˇt esemĂ©nykezelĹ‘ szĂˇlĂˇn kell
 		// lĂ©trehozni
 		SwingUtilities.invokeLater(new Runnable() {
@@ -42,7 +41,7 @@ public class Main {
 
 		try {
 			Image icon = ImageIO.read(Main.class
-					.getResourceAsStream("/hu/bme/mit/WorktimeManager/res/XXX.png"));
+					.getResourceAsStream("/hu/bme/mit/WorktimeManager/res/hatter.jpg"));
 			appWindow.setIconImage(icon);
 		} catch (Exception e) {
 		}

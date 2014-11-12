@@ -1,52 +1,59 @@
 package hu.bme.mit.WorktimeManager.gui;
 
-import java.util.HashMap;
-import java.util.Map;
+import javax.swing.*;
+//import javax.swing.table.DefaultTableModel;
 
-import javax.swing.JFrame;
+import java.awt.*;
 
 public class AppWindow extends JFrame {
-	private static final long serialVersionUID = 8996973239562737076L;
-	/**
-	 * A felhasznĂˇlĂłi felĂĽlet paneljainak azonosĂ­tĂˇsĂˇra szolgĂˇlĂł enum
-	 */
-	public enum PanelId {
-		IP_PANEL, APP_FIELD
-	}
 
-	private Map<PanelId, AppPanel> mPanels = new HashMap<>();
-	private AppPanel mCurrentPanel = null;
+	private static final long serialVersionUID = 5985303282449765289L;
+		
+	private JMenuBar menu;
+	private JMenu m1;
+	private JMenuItem AddNew, Reset;
+	private JPanel pMain,pNorth,pCenter;
+	private JTextArea panel;
 
-	public AppWindow() {
-		super("Worktime Manager");
-		setDefaultCloseOperation(EXIT_ON_CLOSE);
-		setResizable(false);
+	public AppWindow()
+	{
+	  //menu bar and menu item initialization
+	  menu = new JMenuBar();
+	  m1 = new JMenu("Detect Server");
+	  AddNew = new JMenuItem("Add New");
+	  Reset = new JMenuItem("Reset");
+	  
+	  //text area initialization
+      panel = new JTextArea(2,3);
 
-		//initComponents();
-		//mAppManager = new AppManager((AppField) mPanels.get(PanelId.APP_FIELD));
-	}
+	  panel.setText("Itt lesznek a feldolgozott adatok.");
+	  panel.setEditable(false);
+	  
+	  //JTable table = new JTable(new DefaultTableModel(null, new Object[]{"Column1", "Column2"}));
+	  
 
-/*	private void initComponents() {
-		mPanels.put(PanelId.SERVER_PANEL, new ServerPanel(this));
-		mPanels.put(PanelId.CLIENT_PANEL, new ClientPanel(this));
+	  //initialization panel
 
-	}*/
+	   pNorth = new JPanel();
+       pCenter = new JPanel();
 
-	/**
-	 * A {@link PanelId}-val azonosĂ­tott felhasznĂˇlĂłi felĂĽlet elem megjelenĂ­tĂ©se
-	 * 
-	 * @param panelId
-	 */
-	public void showPanel(final PanelId panelId) {
-		if (mCurrentPanel != null) {
-			mCurrentPanel.onHide();
-		}
+	   //add menu item to menu
 
-		AppPanel newPanel = mPanels.get(panelId);
-		setContentPane(newPanel);
-		validate();
-		newPanel.requestFocusInWindow();
-		newPanel.onShow();
-		mCurrentPanel = newPanel;
-	}
+	   m1.add(AddNew);
+	   m1.add(Reset);
+	   menu.add(m1);
+	   
+	   pCenter.setLayout(new BoxLayout(pMain,BoxLayout.Y_AXIS));
+	   pCenter.setLayout(new GridLayout(1,1));
+	   pCenter.add(panel);
+
+	   pNorth.setBackground(Color.white);
+	   pNorth.add(menu);
+	   
+	   setDefaultCloseOperation(EXIT_ON_CLOSE);
+	   
+	   this.getContentPane().add(pCenter,"Center");
+	   this.getContentPane().add(pNorth,"North");
+	   this.setTitle("Working time manager");
+	   }
 }
