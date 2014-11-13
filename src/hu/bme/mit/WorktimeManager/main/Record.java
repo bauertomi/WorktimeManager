@@ -1,8 +1,15 @@
 package hu.bme.mit.WorktimeManager.main;
 
-import java.util.ArrayList;
 
 public class Record {
-	ArrayList<Record> mRecords = new ArrayList<Record>();
+	private String mID;
+	
+	public Record(Message message) {
+		mID = message.getID();
+	} 
+	
+	public void setID(String id) {
+		mID = id;
+	}
 	
 }

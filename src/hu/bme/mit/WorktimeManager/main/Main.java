@@ -3,6 +3,8 @@ package hu.bme.mit.WorktimeManager.main;
 import hu.bme.mit.WorktimeManager.gui.AppWindow;
 
 import java.awt.Image;
+import java.util.ArrayList;
+
 import javax.imageio.ImageIO;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
@@ -18,11 +20,12 @@ public class Main {
 	public final static int WINDOW_SIZE_X = 800;
 	public final static int WINDOW_SIZE_Y = 600;
 	
+	
 	public static void main(String[] args) {
 // A grafikus felĂĽletet a Swing sajĂˇt esemĂ©nykezelĹ‘ szĂˇlĂˇn kell
 		// lĂ©trehozni
 		SwingUtilities.invokeLater(new Runnable() {
-
+		
 			@Override
 			public void run() {
 				try {

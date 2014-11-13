@@ -1,9 +1,31 @@
 package hu.bme.mit.WorktimeManager.gui;
 
-import javax.swing.*;
-//import javax.swing.table.DefaultTableModel;
+import hu.bme.mit.WorktimeManager.main.Record;
+import hu.bme.mit.WorktimeManager.main.Storage;
 
-import java.awt.*;
+import java.util.Date;
+import java.util.Vector;
+
+import javax.swing.BoxLayout;
+import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextArea;
+import javax.swing.event.TableModelListener;
+import javax.swing.table.TableModel;
+
+
+
+
+
+//import javax.swing.table.DefaultTableModel;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.GridLayout;
 
 public class AppWindow extends JFrame {
 
@@ -14,6 +36,83 @@ public class AppWindow extends JFrame {
 	private JMenuItem AddNew, Reset;
 	private JPanel pMain,pNorth,pCenter;
 	private JTextArea panel;
+	private MyTableModel mTableModel = new MyTableModel();
+	private Storage mStorage = new Storage();
+	
+	private class MyTableModel implements TableModel {
+
+		@Override
+		public void addTableModelListener(TableModelListener arg0) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public Class<?> getColumnClass(int arg0) {
+			switch (arg0) {
+			case 0:
+				return Date.class;
+// TODO
+				//kitöröl default!!!
+			default:
+				return Object.class;
+			}
+		}
+
+		@Override
+		public int getColumnCount() {
+			// TODO Auto-generated method stub
+			return 4;
+		}
+
+		@Override
+		public String getColumnName(int arg0) {
+			switch (arg0) {
+			case 0:
+				return "Time";
+//TODO többi oszlop!!!
+			default:
+				return "default";
+			}
+		}
+
+		@Override
+		public int getRowCount() {
+			// TODO Auto-generated method stub
+			return 0;
+		}
+
+		@Override
+		public Object getValueAt(int arg0, int arg1) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public boolean isCellEditable(int arg0, int arg1) {
+			return false;
+		}
+
+		@Override
+		public void removeTableModelListener(TableModelListener arg0) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
+			Record record = mStorage.getRow(rowIndex);
+			switch (columnIndex) {
+			case 0:
+				record.setID((String) aValue);
+				break;
+
+			default:
+				break;
+			}
+		}
+		
+	}
 
 	public AppWindow()
 	{
@@ -29,9 +128,6 @@ public class AppWindow extends JFrame {
 	  panel.setText("Itt lesznek a feldolgozott adatok.");
 	  panel.setEditable(false);
 	  
-	  //JTable table = new JTable(new DefaultTableModel(null, new Object[]{"Column1", "Column2"}));
-	  
-
 	  //initialization panel
 
 	   pNorth = new JPanel();
@@ -50,10 +146,36 @@ public class AppWindow extends JFrame {
 	   pNorth.setBackground(Color.white);
 	   pNorth.add(menu);
 	   
-	   setDefaultCloseOperation(EXIT_ON_CLOSE);
 	   
+		  /*Vector<String> rowOne = new Vector<String>();
+		    rowOne.addElement("Row1-Column1");
+		    rowOne.addElement("Row1-Column2");
+		    rowOne.addElement("Row1-Column3");
+		    
+		    Vector<String> rowTwo = new Vector<String>();
+		    rowTwo.addElement("Row2-Column1");
+		    rowTwo.addElement("Row2-Column2");
+		    rowTwo.addElement("Row2-Column3");
+		    
+		    Vector<Vector<?>> rowData = new Vector<Vector<?>>();
+		    rowData.addElement(rowOne);
+		    rowData.addElement(rowTwo);
+		    
+		    Vector<String> columnNames = new Vector<String>();
+		    columnNames.addElement("Column One");
+		    columnNames.addElement("Column Two");
+		    columnNames.addElement("Column Three");
+		    
+		    
+		    
+		    JTable table = new JTable(rowData, columnNames);*/
+		    JTable table = new JTable(mTableModel);
+		    JScrollPane scrollPane = new JScrollPane(table);
+		    pCenter.add(scrollPane, BorderLayout.CENTER);
+		    
 	   this.getContentPane().add(pCenter,"Center");
 	   this.getContentPane().add(pNorth,"North");
 	   this.setTitle("Working time manager");
+	   setDefaultCloseOperation(EXIT_ON_CLOSE);
 	   }
 }
