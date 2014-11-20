@@ -2,6 +2,7 @@ package hu.bme.mit.WorktimeManager.gui;
 
 import hu.bme.mit.WorktimeManager.main.Record;
 import hu.bme.mit.WorktimeManager.main.Storage;
+import hu.bme.mit.WorktimeManager.main.Storage.StorageListener;
 
 import java.util.Date;
 import java.util.Vector;
@@ -22,12 +23,13 @@ import javax.swing.table.TableModel;
 
 
 
+
 //import javax.swing.table.DefaultTableModel;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.GridLayout;
 
-public class AppWindow extends JFrame {
+public class AppWindow extends JFrame implements StorageListener {
 
 	private static final long serialVersionUID = 5985303282449765289L;
 		
@@ -37,7 +39,7 @@ public class AppWindow extends JFrame {
 	private JPanel pMain,pNorth,pCenter;
 	private JTextArea panel;
 	private MyTableModel mTableModel = new MyTableModel();
-	private Storage mStorage = new Storage();
+	private Storage mStorage = Storage.getInstance();
 	
 	private class MyTableModel implements TableModel {
 
@@ -83,9 +85,10 @@ public class AppWindow extends JFrame {
 		}
 
 		@Override
-		public Object getValueAt(int arg0, int arg1) {
-			// TODO Auto-generated method stub
-			return null;
+		public Object getValueAt(int rowIndex, int columnIndex) {
+			Record row = mStorage.getRow(rowIndex);
+			
+			return row.getColumn(columnIndex);
 		}
 
 		@Override
@@ -116,6 +119,7 @@ public class AppWindow extends JFrame {
 
 	public AppWindow()
 	{
+		mStorage.registerStorageListener(this);
 	  //menu bar and menu item initialization
 	  menu = new JMenuBar();
 	  m1 = new JMenu("Detect Server");
@@ -178,4 +182,10 @@ public class AppWindow extends JFrame {
 	   this.setTitle("Working time manager");
 	   setDefaultCloseOperation(EXIT_ON_CLOSE);
 	   }
+
+	@Override
+	public void onRowAdded(Record record) {
+		// TODO Auto-generated method stub
+		
+	}
 }

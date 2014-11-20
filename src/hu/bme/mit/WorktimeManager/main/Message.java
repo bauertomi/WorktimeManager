@@ -14,4 +14,6 @@ public class Message {
 	public void setID(String id) {
 		mID = id;
 	}
+	
+	
 }
