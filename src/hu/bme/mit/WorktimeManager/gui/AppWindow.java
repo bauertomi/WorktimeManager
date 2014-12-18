@@ -3,12 +3,16 @@ package hu.bme.mit.WorktimeManager.gui;
 import hu.bme.mit.WorktimeManager.main.Record;
 import hu.bme.mit.WorktimeManager.main.Storage;
 import hu.bme.mit.WorktimeManager.main.Storage.StorageListener;
-import hu.bme.mit.WorktimeManager.network.NetworkDiscover;
-import hu.bme.mit.WorktimeManager.network.NetworkDiscover.NetworkDiscoverListener;
 
-import java.sql.Savepoint;
+//import javax.swing.table.DefaultTableModel;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
-import java.util.Vector;
 
 import javax.swing.BoxLayout;
 import javax.swing.JFrame;
@@ -18,39 +22,9 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.JTextArea;
+import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
-import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-import sun.security.jca.GetInstance.Instance;
-
-
-
-
-
-
-
-//import javax.swing.table.DefaultTableModel;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.IOException;
 
 public class AppWindow extends JFrame implements StorageListener {
 
@@ -60,16 +34,21 @@ public class AppWindow extends JFrame implements StorageListener {
 	private JMenu m1;
 	private JMenuItem AddNew, Reset;
 	private JPanel pMain,pNorth,pCenter;
-	private JTextArea panel;
 	private MyTableModel mTableModel = new MyTableModel();
 	private Storage mStorage = Storage.getInstance();
 	
+	private ArrayList<TableModelListener> listeners = new ArrayList<TableModelListener>();
+	private ArrayList<Object[]> data = new ArrayList<Object[]>();
+
 	private class MyTableModel implements TableModel {
 
 		@Override
 		public void addTableModelListener(TableModelListener arg0) {
 			// TODO Auto-generated method stub
-			
+			if (listeners.contains(arg0))
+				return;
+				listeners.add(arg0);
+
 		}
 
 		@Override
@@ -79,8 +58,7 @@ public class AppWindow extends JFrame implements StorageListener {
 				return Date.class;
 			case 1:
 				return Object.class;
-// TODO
-				//kitöröl default!!!
+				//kitöröl default!?
 			default:
 				return Object.class;
 			}
@@ -108,7 +86,7 @@ public class AppWindow extends JFrame implements StorageListener {
 		@Override
 		public int getRowCount() {
 			// TODO Auto-generated method stub
-			return 0;
+			return data.size();
 		}
 
 		@Override
@@ -125,13 +103,25 @@ public class AppWindow extends JFrame implements StorageListener {
 
 		@Override
 		public void removeTableModelListener(TableModelListener arg0) {
-			// TODO Auto-generated method stub
+			listeners.remove(arg0);
+
 			
 		}
 
 		@Override
 		public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
 			Record record = mStorage.getRow(rowIndex);
+			//
+			data.get(rowIndex)[columnIndex] = aValue;
+			
+			TableModelEvent valueAdded = new TableModelEvent(this, rowIndex,
+					                rowIndex, columnIndex, TableModelEvent.UPDATE);
+
+			
+			for (TableModelListener arg0: listeners)
+				arg0.tableChanged(valueAdded);
+			//
+
 			switch (columnIndex) {
 			case 0:
 				record.setID((String) aValue);
@@ -180,7 +170,19 @@ public class AppWindow extends JFrame implements StorageListener {
 			}
            }
        });
-	   Reset.addActionListener(null);
+	   Reset.addActionListener(new ActionListener() {
+		   
+           public void actionPerformed(ActionEvent e)
+           {
+               //Execute when button is pressed NETWORK DISCOVER
+               try {
+				Storage.readStorage("C:\\Users\\BlackBeard\\Desktop\\storage.txt");
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+           }
+       });
 	   
 	   pCenter.setLayout(new BoxLayout(pMain,BoxLayout.Y_AXIS));
 	   pCenter.setLayout(new GridLayout(1,1));

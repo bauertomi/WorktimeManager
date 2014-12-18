@@ -1,12 +1,15 @@
 package hu.bme.mit.WorktimeManager.main;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 
 public class Storage {
+	public static final String STORAGE_PATH = "C:\\Users\\BlackBeard\\Desktop\\storage.txt";
 	private ArrayList<Record> mRecords = new ArrayList<Record>();
 	private ArrayList<StorageListener> mListeners = new ArrayList<StorageListener>();
 	private static Storage instance = null;
@@ -49,7 +52,7 @@ public class Storage {
 	public static void saveStorage(String args) throws IOException {
 		String content = args;
 
-		File file = new File("C:\\Users\\BlackBeard\\Desktop\\storage.txt");
+		File file = new File(STORAGE_PATH);
 
 		if (!file.exists()) {
 			file.createNewFile();
@@ -62,5 +65,20 @@ public class Storage {
 		System.out.println("Done");
 
 		}
+	
+	public static String readStorage (String path) throws IOException{
+		
+		BufferedReader br = null;
+		String sCurrentLine;
+		 
+		br = new BufferedReader(new FileReader(path));
+
+		while ((sCurrentLine = br.readLine()) != null) {
+			System.out.println(sCurrentLine);
+		}
+		br.close();
+		return sCurrentLine;
+		
+	}
 
 	}
