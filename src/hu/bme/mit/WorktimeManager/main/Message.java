@@ -15,5 +15,4 @@ public class Message {
 		mID = id;
 	}
 	
-	
 }

@@ -3,7 +3,10 @@ package hu.bme.mit.WorktimeManager.gui;
 import hu.bme.mit.WorktimeManager.main.Record;
 import hu.bme.mit.WorktimeManager.main.Storage;
 import hu.bme.mit.WorktimeManager.main.Storage.StorageListener;
+import hu.bme.mit.WorktimeManager.network.NetworkDiscover;
+import hu.bme.mit.WorktimeManager.network.NetworkDiscover.NetworkDiscoverListener;
 
+import java.sql.Savepoint;
 import java.util.Date;
 import java.util.Vector;
 
@@ -17,7 +20,24 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.event.TableModelListener;
+import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+import sun.security.jca.GetInstance.Instance;
+
 
 
 
@@ -28,6 +48,9 @@ import javax.swing.table.TableModel;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.IOException;
 
 public class AppWindow extends JFrame implements StorageListener {
 
@@ -54,6 +77,8 @@ public class AppWindow extends JFrame implements StorageListener {
 			switch (arg0) {
 			case 0:
 				return Date.class;
+			case 1:
+				return Object.class;
 // TODO
 				//kitöröl default!!!
 			default:
@@ -63,8 +88,7 @@ public class AppWindow extends JFrame implements StorageListener {
 
 		@Override
 		public int getColumnCount() {
-			// TODO Auto-generated method stub
-			return 4;
+			return 3;
 		}
 
 		@Override
@@ -72,7 +96,10 @@ public class AppWindow extends JFrame implements StorageListener {
 			switch (arg0) {
 			case 0:
 				return "Time";
-//TODO többi oszlop!!!
+			case 1:
+				return "ID";
+			case 2:
+				return "State";
 			default:
 				return "default";
 			}
@@ -109,6 +136,8 @@ public class AppWindow extends JFrame implements StorageListener {
 			case 0:
 				record.setID((String) aValue);
 				break;
+			case 1:
+				record.setTimeStamp((Date) aValue);
 
 			default:
 				break;
@@ -125,13 +154,7 @@ public class AppWindow extends JFrame implements StorageListener {
 	  m1 = new JMenu("Detect Server");
 	  AddNew = new JMenuItem("Add New");
 	  Reset = new JMenuItem("Reset");
-	  
-	  //text area initialization
-      panel = new JTextArea(2,3);
-
-	  panel.setText("Itt lesznek a feldolgozott adatok.");
-	  panel.setEditable(false);
-	  
+  
 	  //initialization panel
 
 	   pNorth = new JPanel();
@@ -143,43 +166,40 @@ public class AppWindow extends JFrame implements StorageListener {
 	   m1.add(Reset);
 	   menu.add(m1);
 	   
+	   //TODO
+	   AddNew.addActionListener(new ActionListener() {
+		   
+           public void actionPerformed(ActionEvent e)
+           {
+               //Execute when button is pressed NETWORK DISCOVER
+               try {
+				Storage.saveStorage("probababa");
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+           }
+       });
+	   Reset.addActionListener(null);
+	   
 	   pCenter.setLayout(new BoxLayout(pMain,BoxLayout.Y_AXIS));
 	   pCenter.setLayout(new GridLayout(1,1));
-	   pCenter.add(panel);
 
 	   pNorth.setBackground(Color.white);
-	   pNorth.add(menu);
-	   
-	   
-		  /*Vector<String> rowOne = new Vector<String>();
-		    rowOne.addElement("Row1-Column1");
-		    rowOne.addElement("Row1-Column2");
-		    rowOne.addElement("Row1-Column3");
+	   pNorth.add(menu);    
 		    
-		    Vector<String> rowTwo = new Vector<String>();
-		    rowTwo.addElement("Row2-Column1");
-		    rowTwo.addElement("Row2-Column2");
-		    rowTwo.addElement("Row2-Column3");
-		    
-		    Vector<Vector<?>> rowData = new Vector<Vector<?>>();
-		    rowData.addElement(rowOne);
-		    rowData.addElement(rowTwo);
-		    
-		    Vector<String> columnNames = new Vector<String>();
-		    columnNames.addElement("Column One");
-		    columnNames.addElement("Column Two");
-		    columnNames.addElement("Column Three");
-		    
-		    
-		    
-		    JTable table = new JTable(rowData, columnNames);*/
+		    //JTable table = new JTable(rowData, columnNames);
 		    JTable table = new JTable(mTableModel);
+		    table.setModel(mTableModel);
+
 		    JScrollPane scrollPane = new JScrollPane(table);
 		    pCenter.add(scrollPane, BorderLayout.CENTER);
 		    
 	   this.getContentPane().add(pCenter,"Center");
 	   this.getContentPane().add(pNorth,"North");
 	   this.setTitle("Working time manager");
+	   
+	   
 	   setDefaultCloseOperation(EXIT_ON_CLOSE);
 	   }
 
