@@ -15,7 +15,7 @@ import java.net.Socket;
  * {@link GameState} osztĂˇlyt fogad a szervertĹ‘l.
  * </p>
  */
-public class NetworkClient extends NetworkHelper {
+public class NetworkClient extends NetworkHelper<String, String> {
 
 	//3000 volt
 	private static final int TIMEOUT = 30000;

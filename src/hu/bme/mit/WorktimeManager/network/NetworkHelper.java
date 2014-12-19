@@ -22,9 +22,9 @@ public abstract class NetworkHelper<ReceiveType, SendType> {
 	protected Socket mClientSocket;
 	private ObjectInputStream mInput;
 	private ObjectOutputStream mOutput;
-	private ReceiverThread<ReceiveType> mReceiverThread;
+	private ReceiverThread mReceiverThread;
 	protected ArrayList<NetworkConnectionListener> mConnectionListeners = new ArrayList<>();
-	protected ArrayList<NetworkReceiveListener<ReceiveType>> mReceiveListeners = new ArrayList<>();
+	protected ArrayList<NetworkReceiveListener> mReceiveListeners = new ArrayList<>();
 
 	/**
 	 * A hĂˇlĂłzati kapcsolat ĂˇllapotvĂˇltozĂˇsait jelzĹ‘ interfĂ©sz.
@@ -47,17 +47,18 @@ public abstract class NetworkHelper<ReceiveType, SendType> {
 	 * @param <ReceiveType>
 	 *            A vĂˇrt objektum tĂ­pusa
 	 */
-	public interface NetworkReceiveListener<ReceiveType> {
+	public interface NetworkReceiveListener {
 		/**
 		 * Akkor hĂ­vĂłdik, ha Ăşj objektum Ă©rkezett a hĂˇlĂłzaton.
 		 * 
 		 * @param data
 		 *            A beĂ©rkezett objektum
 		 */
-		void onReceive(ReceiveType data);
+		void onReceive(String data);
 	}
 
-	public void addConnectionListener(NetworkConnectionListener listener) throws NullPointerException {
+	public void addConnectionListener(NetworkConnectionListener listener)
+			throws NullPointerException {
 		if (listener == null) {
 			throw new NullPointerException();
 		}
@@ -72,7 +73,8 @@ public abstract class NetworkHelper<ReceiveType, SendType> {
 		}
 	}
 
-	public void addReceiveListener(NetworkReceiveListener<ReceiveType> listener) throws NullPointerException {
+	public void addReceiveListener(NetworkReceiveListener listener)
+			throws NullPointerException {
 		if (listener == null) {
 			throw new NullPointerException();
 		}
@@ -81,7 +83,7 @@ public abstract class NetworkHelper<ReceiveType, SendType> {
 		}
 	}
 
-	public void removeReceiveListener(NetworkReceiveListener<ReceiveType> listener) {
+	public void removeReceiveListener(NetworkReceiveListener listener) {
 		synchronized (mReceiveListeners) {
 			mReceiveListeners.remove(listener);
 		}
@@ -94,12 +96,12 @@ public abstract class NetworkHelper<ReceiveType, SendType> {
 	 *            A vĂˇrt adatok tĂ­pusa
 	 */
 	@SuppressWarnings("hiding")
-	protected class ReceiverThread<ReceiveType> extends Thread {
+	protected class ReceiverThread extends Thread {
 
 		private AtomicBoolean mRunning = new AtomicBoolean(true);
-		private ArrayList<NetworkReceiveListener<ReceiveType>> mListeners;
+		private ArrayList<NetworkReceiveListener> mListeners;
 
-		public ReceiverThread(ArrayList<NetworkReceiveListener<ReceiveType>> listeners) {
+		public ReceiverThread(ArrayList<NetworkReceiveListener> listeners) {
 			mListeners = listeners;
 		}
 
@@ -114,11 +116,11 @@ public abstract class NetworkHelper<ReceiveType, SendType> {
 						throw new InterruptedException();
 					}
 					@SuppressWarnings("unchecked")
-					//readUTF stringet olvas
-					ReceiveType readString = (ReceiveType) mInput.readUTF();
+					// readUTF stringet olvas
+					String readString = mInput.readUTF();
 					if (mListeners != null) {
 						synchronized (NetworkHelper.this.mReceiveListeners) {
-							for (NetworkReceiveListener<ReceiveType> listener : mListeners) {
+							for (NetworkReceiveListener listener : mListeners) {
 								listener.onReceive(readString);
 							}
 						}
@@ -126,8 +128,9 @@ public abstract class NetworkHelper<ReceiveType, SendType> {
 				} catch (InterruptedException e) {
 					return;
 				} catch (Exception e) {
-					//e.printStackTrace();
-					System.err.println("Stopped receiving data from the network.");
+					// e.printStackTrace();
+					System.err
+							.println("Stopped receiving data from the network.");
 					disconnect();
 					return;
 				}
@@ -149,7 +152,7 @@ public abstract class NetworkHelper<ReceiveType, SendType> {
 	 * A {@link ReceiverThread} indĂ­tĂˇsa.
 	 */
 	protected void startReceiving() {
-		mReceiverThread = new ReceiverThread<>(mReceiveListeners);
+		mReceiverThread = new ReceiverThread(mReceiveListeners);
 		mReceiverThread.start();
 	}
 
@@ -169,8 +172,8 @@ public abstract class NetworkHelper<ReceiveType, SendType> {
 	}
 
 	/**
-	 * Kapcsolat bontĂˇsa. MeghĂ­vĂˇsa kĂ¶telezĹ‘ az erĹ‘forrĂˇsok felszabadĂ­tĂˇsa
-	 * Ă©rdekben.
+	 * Kapcsolat bontĂˇsa. MeghĂ­vĂˇsa kĂ¶telezĹ‘ az erĹ‘forrĂˇsok
+	 * felszabadĂ­tĂˇsa Ă©rdekben.
 	 */
 	public void disconnect() {
 		stopReceiving();
@@ -230,4 +233,3 @@ public abstract class NetworkHelper<ReceiveType, SendType> {
 		}
 	}
 }
-

@@ -10,6 +10,7 @@ import hu.bme.mit.WorktimeManager.network.NetworkDiscover.NetworkDiscoverListene
 //import javax.swing.table.DefaultTableModel;
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -17,13 +18,18 @@ import java.net.InetAddress;
 import java.util.ArrayList;
 
 import javax.swing.BoxLayout;
+import javax.swing.DefaultListModel;
 import javax.swing.JFrame;
+import javax.swing.JList;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.ListSelectionModel;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.TableModel;
@@ -34,6 +40,7 @@ public class AppWindow extends JFrame implements StorageListener,
 		NetworkDiscoverListener {
 
 	private static final long serialVersionUID = 5985303282449765289L;
+	protected static final Font mStandardFont = new Font("Serif", Font.PLAIN, 20);
 
 	private JMenuBar menu;
 	private JMenu m1;
@@ -43,6 +50,12 @@ public class AppWindow extends JFrame implements StorageListener,
 	private Storage mStorage = Storage.getInstance();
 
 	private ArrayList<TableModelListener> listeners = new ArrayList<TableModelListener>();
+	private DefaultListModel<String> mAddresses;
+	private JList<String> mAddressList;
+	
+	
+	
+
 	private ArrayList<Object[]> data = new ArrayList<Object[]>();
 	private NetworkDiscover networkListener = new NetworkDiscover(this);
 
@@ -50,7 +63,6 @@ public class AppWindow extends JFrame implements StorageListener,
 
 		@Override
 		public void addTableModelListener(TableModelListener arg0) {
-			// TODO Auto-generated method stub
 			if (listeners.contains(arg0))
 				return;
 			listeners.add(arg0);
@@ -87,7 +99,6 @@ public class AppWindow extends JFrame implements StorageListener,
 
 		@Override
 		public int getRowCount() {
-			// TODO Auto-generated method stub
 			return data.size();
 		}
 
@@ -136,6 +147,7 @@ public class AppWindow extends JFrame implements StorageListener,
 
 	}
 
+
 	public AppWindow() {
 
 		mStorage.registerStorageListener(this);
@@ -150,6 +162,22 @@ public class AppWindow extends JFrame implements StorageListener,
 		Message message = new Message("startup");
 
 		Record record = new Record(message, time);
+		
+		mAddresses = new DefaultListModel<>();
+		mAddressList = new JList<>(mAddresses);
+		mAddressList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		mAddressList.setVisibleRowCount(5);
+		mAddressList.setFont(mStandardFont);
+		mAddressList.addListSelectionListener(new ListSelectionListener() {
+
+			@Override
+			public void valueChanged(ListSelectionEvent e) {
+				final String address = mAddressList.getSelectedValue();
+				//mAddressEdit.setText((address != null) ? address : PLACEHOLDER);
+			}
+		});
+		
+		
 		// initialization panel
 
 		pNorth = new JPanel();
@@ -160,7 +188,7 @@ public class AppWindow extends JFrame implements StorageListener,
 		m1.add(addNew);
 		m1.add(reset);
 		menu.add(m1);
-		
+
 		pCenter.setLayout(new BoxLayout(pMain, BoxLayout.Y_AXIS));
 		pCenter.setLayout(new GridLayout(1, 1));
 
@@ -169,7 +197,7 @@ public class AppWindow extends JFrame implements StorageListener,
 
 		JTable table = new JTable(mTableModel);
 		table.setModel(mTableModel);
-		
+
 		mStorage.addRow(record);
 		message.setID("x");
 
@@ -180,7 +208,6 @@ public class AppWindow extends JFrame implements StorageListener,
 		this.getContentPane().add(pNorth, "North");
 		this.setTitle("Working time manager");
 
-		// TODO
 		addNew.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent e) {
@@ -192,13 +219,10 @@ public class AppWindow extends JFrame implements StorageListener,
 			public void actionPerformed(ActionEvent e) {
 				// Execute when button is pressed NETWORK DISCOVER
 				networkListener.stopListening();
-				//sortorlesek mukodik?
-				int rowCount = table.getRowCount();
-				for (int i = rowCount - 1; i >= 0; i--) {
-				    table.remove(i);
-				}
 			}
 		});
+		
+		// TODO Ide kellenek a listenerek, + az onnan jovo adatot storage-be rakni!
 
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 	}
@@ -214,13 +238,13 @@ public class AppWindow extends JFrame implements StorageListener,
 
 	@Override
 	public void onDiscover(InetAddress address, NetworkDiscover networkDiscover) {
-
+		mAddresses.addElement(address.toString().substring(1));
 	}
 
 	@Override
 	public void onDiscoveredTimeout(InetAddress address) {
 		// TODO Auto-generated method stub
-		networkListener.stopListening();
+		// networkListener.stopListening();
 
 	}
 }
