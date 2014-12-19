@@ -4,6 +4,8 @@ import hu.bme.mit.WorktimeManager.main.Message;
 import hu.bme.mit.WorktimeManager.main.Record;
 import hu.bme.mit.WorktimeManager.main.Storage;
 import hu.bme.mit.WorktimeManager.main.Storage.StorageListener;
+import hu.bme.mit.WorktimeManager.network.NetworkClient;
+import hu.bme.mit.WorktimeManager.network.NetworkClient.NetworkClientListener;
 import hu.bme.mit.WorktimeManager.network.NetworkDiscover;
 import hu.bme.mit.WorktimeManager.network.NetworkDiscover.NetworkDiscoverListener;
 
@@ -14,6 +16,7 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 import java.net.InetAddress;
 import java.util.ArrayList;
 
@@ -37,10 +40,11 @@ import javax.swing.table.TableModel;
 import com.sun.jmx.snmp.Timestamp;
 
 public class AppWindow extends JFrame implements StorageListener,
-		NetworkDiscoverListener {
+		NetworkDiscoverListener, NetworkClientListener {
 
 	private static final long serialVersionUID = 5985303282449765289L;
-	protected static final Font mStandardFont = new Font("Serif", Font.PLAIN, 20);
+	protected static final Font mStandardFont = new Font("Serif", Font.PLAIN,
+			20);
 
 	private JMenuBar menu;
 	private JMenu m1;
@@ -52,9 +56,7 @@ public class AppWindow extends JFrame implements StorageListener,
 	private ArrayList<TableModelListener> listeners = new ArrayList<TableModelListener>();
 	private DefaultListModel<String> mAddresses;
 	private JList<String> mAddressList;
-	
-	
-	
+	private NetworkClient mNetworkClient = new NetworkClient(this);
 
 	private ArrayList<Object[]> data = new ArrayList<Object[]>();
 	private NetworkDiscover networkListener = new NetworkDiscover(this);
@@ -147,7 +149,6 @@ public class AppWindow extends JFrame implements StorageListener,
 
 	}
 
-
 	public AppWindow() {
 
 		mStorage.registerStorageListener(this);
@@ -162,7 +163,7 @@ public class AppWindow extends JFrame implements StorageListener,
 		Message message = new Message("startup");
 
 		Record record = new Record(message, time);
-		
+
 		mAddresses = new DefaultListModel<>();
 		mAddressList = new JList<>(mAddresses);
 		mAddressList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -173,11 +174,11 @@ public class AppWindow extends JFrame implements StorageListener,
 			@Override
 			public void valueChanged(ListSelectionEvent e) {
 				final String address = mAddressList.getSelectedValue();
-				//mAddressEdit.setText((address != null) ? address : PLACEHOLDER);
+				// mAddressEdit.setText((address != null) ? address :
+				// PLACEHOLDER);
 			}
 		});
-		
-		
+
 		// initialization panel
 
 		pNorth = new JPanel();
@@ -222,8 +223,9 @@ public class AppWindow extends JFrame implements StorageListener,
 				networkListener.stopListening();
 			}
 		});
-		
-		// TODO Ide kellenek a listenerek, + az onnan jovo adatot storage-be rakni!
+
+		// TODO Ide kellenek a listenerek, + az onnan jovo adatot storage-be
+		// rakni!
 
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 	}
@@ -239,14 +241,45 @@ public class AppWindow extends JFrame implements StorageListener,
 
 	@Override
 	public void onDiscover(InetAddress address, NetworkDiscover networkDiscover) {
-		mAddresses.addElement(address.toString().substring(1));
+		String IP = address.toString().substring(1);
+
+		if (!mAddresses.contains(IP))
+			mAddresses.addElement(IP);
+		try {
+			mNetworkClient.connect(address);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Override
 	public void onDiscoveredTimeout(InetAddress address) {
 		// TODO Auto-generated method stub
 		// networkListener.stopListening();
-		//mAddresses.removeElement(address.toString().substring(1));
+		// mAddresses.removeElement(address.toString().substring(1));
+
+	}
+
+	@Override
+	public void onReceive(String data) {
+		Timestamp time = new Timestamp();
+		Message message = new Message(data);
+		Record record = new Record(message, time);
+
+		mStorage.addRow(record);
+	}
+
+	@Override
+	public void onConnect() {
+		// TODO Auto-generated method stub
+		mAddresses.addElement("Connected");
+
+	}
+
+	@Override
+	public void onDisconnect() {
+		// TODO Auto-generated method stub
+		mAddresses.addElement("Disconnected");
 
 	}
 }
