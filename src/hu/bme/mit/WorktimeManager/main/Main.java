@@ -2,11 +2,6 @@ package hu.bme.mit.WorktimeManager.main;
 
 import hu.bme.mit.WorktimeManager.gui.AppWindow;
 
-import java.awt.Image;
-import java.io.FileOutputStream;
-import java.io.IOException;
-
-import javax.imageio.ImageIO;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;

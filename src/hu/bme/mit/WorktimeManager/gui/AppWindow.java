@@ -1,5 +1,6 @@
 package hu.bme.mit.WorktimeManager.gui;
 
+import hu.bme.mit.WorktimeManager.main.Message;
 import hu.bme.mit.WorktimeManager.main.Record;
 import hu.bme.mit.WorktimeManager.main.Storage;
 import hu.bme.mit.WorktimeManager.main.Storage.StorageListener;
@@ -29,14 +30,14 @@ import javax.swing.table.TableModel;
 public class AppWindow extends JFrame implements StorageListener {
 
 	private static final long serialVersionUID = 5985303282449765289L;
-		
+
 	private JMenuBar menu;
 	private JMenu m1;
 	private JMenuItem AddNew, Reset;
-	private JPanel pMain,pNorth,pCenter;
+	private JPanel pMain, pNorth, pCenter;
 	private MyTableModel mTableModel = new MyTableModel();
 	private Storage mStorage = Storage.getInstance();
-	
+
 	private ArrayList<TableModelListener> listeners = new ArrayList<TableModelListener>();
 	private ArrayList<Object[]> data = new ArrayList<Object[]>();
 
@@ -47,7 +48,7 @@ public class AppWindow extends JFrame implements StorageListener {
 			// TODO Auto-generated method stub
 			if (listeners.contains(arg0))
 				return;
-				listeners.add(arg0);
+			listeners.add(arg0);
 
 		}
 
@@ -58,15 +59,13 @@ public class AppWindow extends JFrame implements StorageListener {
 				return Date.class;
 			case 1:
 				return Object.class;
-				//kitöröl default!?
-			default:
-				return Object.class;
 			}
+			return null;
 		}
 
 		@Override
 		public int getColumnCount() {
-			return 3;
+			return 2;
 		}
 
 		@Override
@@ -76,8 +75,6 @@ public class AppWindow extends JFrame implements StorageListener {
 				return "Time";
 			case 1:
 				return "ID";
-			case 2:
-				return "State";
 			default:
 				return "default";
 			}
@@ -92,7 +89,7 @@ public class AppWindow extends JFrame implements StorageListener {
 		@Override
 		public Object getValueAt(int rowIndex, int columnIndex) {
 			Record row = mStorage.getRow(rowIndex);
-			
+
 			return row.getColumn(columnIndex);
 		}
 
@@ -105,7 +102,6 @@ public class AppWindow extends JFrame implements StorageListener {
 		public void removeTableModelListener(TableModelListener arg0) {
 			listeners.remove(arg0);
 
-			
 		}
 
 		@Override
@@ -113,12 +109,11 @@ public class AppWindow extends JFrame implements StorageListener {
 			Record record = mStorage.getRow(rowIndex);
 			//
 			data.get(rowIndex)[columnIndex] = aValue;
-			
-			TableModelEvent valueAdded = new TableModelEvent(this, rowIndex,
-					                rowIndex, columnIndex, TableModelEvent.UPDATE);
 
-			
-			for (TableModelListener arg0: listeners)
+			TableModelEvent valueAdded = new TableModelEvent(this, rowIndex,
+					rowIndex, columnIndex, TableModelEvent.UPDATE);
+
+			for (TableModelListener arg0 : listeners)
 				arg0.tableChanged(valueAdded);
 			//
 
@@ -133,81 +128,86 @@ public class AppWindow extends JFrame implements StorageListener {
 				break;
 			}
 		}
-		
+
 	}
 
-	public AppWindow()
-	{
+	public AppWindow() {
 		mStorage.registerStorageListener(this);
-	  //menu bar and menu item initialization
-	  menu = new JMenuBar();
-	  m1 = new JMenu("Detect Server");
-	  AddNew = new JMenuItem("Add New");
-	  Reset = new JMenuItem("Reset");
-  
-	  //initialization panel
+		// menu bar and menu item initialization
+		menu = new JMenuBar();
+		m1 = new JMenu("Detect Server");
+		AddNew = new JMenuItem("Add New");
+		Reset = new JMenuItem("Reset");
 
-	   pNorth = new JPanel();
-       pCenter = new JPanel();
+		Date date = new Date();
 
-	   //add menu item to menu
+		Message message = new Message("1989");
+		
+		Record record = new Record(message, date);
+		// initialization panel
 
-	   m1.add(AddNew);
-	   m1.add(Reset);
-	   menu.add(m1);
-	   
-	   //TODO
-	   AddNew.addActionListener(new ActionListener() {
-		   
-           public void actionPerformed(ActionEvent e)
-           {
-               //Execute when button is pressed NETWORK DISCOVER
-               try {
-				Storage.saveStorage("probababa");
-			} catch (IOException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
+		pNorth = new JPanel();
+		pCenter = new JPanel();
+
+		// add menu item to menu
+
+		m1.add(AddNew);
+		m1.add(Reset);
+		menu.add(m1);
+
+		// TODO
+		AddNew.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent e) {
+				// Execute when button is pressed NETWORK DISCOVER
+				try {
+					Storage.saveStorage("probababa");
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 			}
-           }
-       });
-	   Reset.addActionListener(new ActionListener() {
-		   
-           public void actionPerformed(ActionEvent e)
-           {
-               //Execute when button is pressed NETWORK DISCOVER
-               try {
-				Storage.readStorage("C:\\Users\\BlackBeard\\Desktop\\storage.txt");
-			} catch (IOException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
+		});
+		Reset.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent e) {
+				// Execute when button is pressed NETWORK DISCOVER
+				try {
+					Storage.readStorage("C:\\Users\\BlackBeard\\Desktop\\storage.txt");
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 			}
-           }
-       });
-	   
-	   pCenter.setLayout(new BoxLayout(pMain,BoxLayout.Y_AXIS));
-	   pCenter.setLayout(new GridLayout(1,1));
+		});
 
-	   pNorth.setBackground(Color.white);
-	   pNorth.add(menu);    
-		    
-		    //JTable table = new JTable(rowData, columnNames);
-		    JTable table = new JTable(mTableModel);
-		    table.setModel(mTableModel);
+		pCenter.setLayout(new BoxLayout(pMain, BoxLayout.Y_AXIS));
+		pCenter.setLayout(new GridLayout(1, 1));
 
-		    JScrollPane scrollPane = new JScrollPane(table);
-		    pCenter.add(scrollPane, BorderLayout.CENTER);
-		    
-	   this.getContentPane().add(pCenter,"Center");
-	   this.getContentPane().add(pNorth,"North");
-	   this.setTitle("Working time manager");
-	   
-	   
-	   setDefaultCloseOperation(EXIT_ON_CLOSE);
-	   }
+		pNorth.setBackground(Color.white);
+		pNorth.add(menu);
+
+		JTable table = new JTable(mTableModel);
+		table.setModel(mTableModel);
+
+		mStorage.addRow(record);
+
+		JScrollPane scrollPane = new JScrollPane(table);
+		pCenter.add(scrollPane, BorderLayout.CENTER);
+
+		this.getContentPane().add(pCenter, "Center");
+		this.getContentPane().add(pNorth, "North");
+		this.setTitle("Working time manager");
+
+		setDefaultCloseOperation(EXIT_ON_CLOSE);
+	}
 
 	@Override
 	public void onRowAdded(Record record) {
-		// TODO Auto-generated method stub
-		
+		Object[] obj = new Object[] {record};
+		data.add(obj);
+		TableModelEvent event = new TableModelEvent(mTableModel/*, TableModelEvent.ALL_COLUMNS, TableModelEvent.INSERT*/);
+		for (TableModelListener l : listeners)
+			l.tableChanged(event);
 	}
 }

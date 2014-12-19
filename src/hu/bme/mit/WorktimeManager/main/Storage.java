@@ -64,13 +64,13 @@ public class Storage {
 
 		System.out.println("Done");
 
-		}
-	
-	public static String readStorage (String path) throws IOException{
-		
+	}
+
+	public static String readStorage(String path) throws IOException {
+
 		BufferedReader br = null;
 		String sCurrentLine;
-		 
+
 		br = new BufferedReader(new FileReader(path));
 
 		while ((sCurrentLine = br.readLine()) != null) {
@@ -78,7 +78,7 @@ public class Storage {
 		}
 		br.close();
 		return sCurrentLine;
-		
-	}
 
 	}
+
+}
