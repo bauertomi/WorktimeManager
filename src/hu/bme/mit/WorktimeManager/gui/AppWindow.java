@@ -13,7 +13,6 @@ import java.awt.Color;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
 import java.net.InetAddress;
 import java.util.ArrayList;
 
@@ -148,7 +147,7 @@ public class AppWindow extends JFrame implements StorageListener,
 
 		Timestamp time = new Timestamp();
 
-		Message message = new Message("1989");
+		Message message = new Message("startup");
 
 		Record record = new Record(message, time);
 		// initialization panel
@@ -161,6 +160,25 @@ public class AppWindow extends JFrame implements StorageListener,
 		m1.add(addNew);
 		m1.add(reset);
 		menu.add(m1);
+		
+		pCenter.setLayout(new BoxLayout(pMain, BoxLayout.Y_AXIS));
+		pCenter.setLayout(new GridLayout(1, 1));
+
+		pNorth.setBackground(Color.white);
+		pNorth.add(menu);
+
+		JTable table = new JTable(mTableModel);
+		table.setModel(mTableModel);
+		
+		mStorage.addRow(record);
+		message.setID("x");
+
+		JScrollPane scrollPane = new JScrollPane(table);
+		pCenter.add(scrollPane, BorderLayout.CENTER);
+
+		this.getContentPane().add(pCenter, "Center");
+		this.getContentPane().add(pNorth, "North");
+		this.setTitle("Working time manager");
 
 		// TODO
 		addNew.addActionListener(new ActionListener() {
@@ -173,32 +191,14 @@ public class AppWindow extends JFrame implements StorageListener,
 
 			public void actionPerformed(ActionEvent e) {
 				// Execute when button is pressed NETWORK DISCOVER
-				try {
-					Storage.readStorage("storage.txt");
-				} catch (IOException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
+				networkListener.stopListening();
+				//sortorlesek mukodik?
+				int rowCount = table.getRowCount();
+				for (int i = rowCount - 1; i >= 0; i--) {
+				    table.remove(i);
 				}
 			}
 		});
-
-		pCenter.setLayout(new BoxLayout(pMain, BoxLayout.Y_AXIS));
-		pCenter.setLayout(new GridLayout(1, 1));
-
-		pNorth.setBackground(Color.white);
-		pNorth.add(menu);
-
-		JTable table = new JTable(mTableModel);
-		table.setModel(mTableModel);
-
-		mStorage.addRow(record);
-
-		JScrollPane scrollPane = new JScrollPane(table);
-		pCenter.add(scrollPane, BorderLayout.CENTER);
-
-		this.getContentPane().add(pCenter, "Center");
-		this.getContentPane().add(pNorth, "North");
-		this.setTitle("Working time manager");
 
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 	}
@@ -214,8 +214,6 @@ public class AppWindow extends JFrame implements StorageListener,
 
 	@Override
 	public void onDiscover(InetAddress address, NetworkDiscover networkDiscover) {
-		// TODO Auto-generated method stub
-		networkListener.startListening();
 
 	}
 
