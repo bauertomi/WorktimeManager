@@ -1,17 +1,16 @@
 package hu.bme.mit.WorktimeManager.main;
 
 import java.util.Calendar;
-import java.util.Date;
 
 import com.sun.jmx.snmp.Timestamp;
 
 public class Record {
 	private String mID;
-	private Date mTimeStamp;
+	private Timestamp mTimeStamp;
 
 	Calendar cal = Calendar.getInstance();
 
-	public Record(Message message, Date timeStamp) {
+	public Record(Message message, Timestamp timeStamp) {
 		mID = message.getID();
 		mTimeStamp = timeStamp;
 	}
@@ -20,12 +19,12 @@ public class Record {
 		mID = id;
 	}
 
-	public void setTimeStamp(Date TimeStamp) {
+	public void setTimeStamp(Timestamp TimeStamp) {
 		mTimeStamp = TimeStamp;
 	}
 
-	public Date getTimeStamp() {
-		Date time = new Date();
+	public Timestamp getTimeStamp() {
+		Timestamp time = new Timestamp();
 		return time;
 	}
 

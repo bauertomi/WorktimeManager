@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 public class Storage {
-	public static final String STORAGE_PATH = "C:\\Users\\BlackBeard\\Desktop\\storage.txt";
+	private static final String STORAGE_PATH = "storage.txt";
 	private ArrayList<Record> mRecords = new ArrayList<Record>();
 	private ArrayList<StorageListener> mListeners = new ArrayList<StorageListener>();
 	private static Storage instance = null;

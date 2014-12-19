@@ -13,7 +13,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Date;
 
 import javax.swing.BoxLayout;
 import javax.swing.JFrame;
@@ -27,13 +26,15 @@ import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.TableModel;
 
+import com.sun.jmx.snmp.Timestamp;
+
 public class AppWindow extends JFrame implements StorageListener {
 
 	private static final long serialVersionUID = 5985303282449765289L;
 
 	private JMenuBar menu;
 	private JMenu m1;
-	private JMenuItem AddNew, Reset;
+	private JMenuItem addNew, reset;
 	private JPanel pMain, pNorth, pCenter;
 	private MyTableModel mTableModel = new MyTableModel();
 	private Storage mStorage = Storage.getInstance();
@@ -56,7 +57,7 @@ public class AppWindow extends JFrame implements StorageListener {
 		public Class<?> getColumnClass(int arg0) {
 			switch (arg0) {
 			case 0:
-				return Date.class;
+				return Timestamp.class;
 			case 1:
 				return Object.class;
 			}
@@ -122,7 +123,7 @@ public class AppWindow extends JFrame implements StorageListener {
 				record.setID((String) aValue);
 				break;
 			case 1:
-				record.setTimeStamp((Date) aValue);
+				record.setTimeStamp((Timestamp) aValue);
 
 			default:
 				break;
@@ -136,14 +137,14 @@ public class AppWindow extends JFrame implements StorageListener {
 		// menu bar and menu item initialization
 		menu = new JMenuBar();
 		m1 = new JMenu("Detect Server");
-		AddNew = new JMenuItem("Add New");
-		Reset = new JMenuItem("Reset");
+		addNew = new JMenuItem("Add New");
+		reset = new JMenuItem("Reset");
 
-		Date date = new Date();
+		Timestamp time = new Timestamp();
 
 		Message message = new Message("1989");
-		
-		Record record = new Record(message, date);
+
+		Record record = new Record(message, time);
 		// initialization panel
 
 		pNorth = new JPanel();
@@ -151,12 +152,12 @@ public class AppWindow extends JFrame implements StorageListener {
 
 		// add menu item to menu
 
-		m1.add(AddNew);
-		m1.add(Reset);
+		m1.add(addNew);
+		m1.add(reset);
 		menu.add(m1);
 
 		// TODO
-		AddNew.addActionListener(new ActionListener() {
+		addNew.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent e) {
 				// Execute when button is pressed NETWORK DISCOVER
@@ -168,12 +169,12 @@ public class AppWindow extends JFrame implements StorageListener {
 				}
 			}
 		});
-		Reset.addActionListener(new ActionListener() {
+		reset.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent e) {
 				// Execute when button is pressed NETWORK DISCOVER
 				try {
-					Storage.readStorage("C:\\Users\\BlackBeard\\Desktop\\storage.txt");
+					Storage.readStorage("storage.txt");
 				} catch (IOException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
@@ -204,9 +205,9 @@ public class AppWindow extends JFrame implements StorageListener {
 
 	@Override
 	public void onRowAdded(Record record) {
-		Object[] obj = new Object[] {record};
+		Object[] obj = new Object[] { record };
 		data.add(obj);
-		TableModelEvent event = new TableModelEvent(mTableModel/*, TableModelEvent.ALL_COLUMNS, TableModelEvent.INSERT*/);
+		TableModelEvent event = new TableModelEvent(mTableModel);
 		for (TableModelListener l : listeners)
 			l.tableChanged(event);
 	}
