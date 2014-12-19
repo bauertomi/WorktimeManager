@@ -203,6 +203,7 @@ public class AppWindow extends JFrame implements StorageListener,
 
 		JScrollPane scrollPane = new JScrollPane(table);
 		pCenter.add(scrollPane, BorderLayout.CENTER);
+		pCenter.add(mAddressList);
 
 		this.getContentPane().add(pCenter, "Center");
 		this.getContentPane().add(pNorth, "North");
@@ -245,6 +246,7 @@ public class AppWindow extends JFrame implements StorageListener,
 	public void onDiscoveredTimeout(InetAddress address) {
 		// TODO Auto-generated method stub
 		// networkListener.stopListening();
+		//mAddresses.removeElement(address.toString().substring(1));
 
 	}
 }
