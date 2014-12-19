@@ -4,6 +4,8 @@ import hu.bme.mit.WorktimeManager.main.Message;
 import hu.bme.mit.WorktimeManager.main.Record;
 import hu.bme.mit.WorktimeManager.main.Storage;
 import hu.bme.mit.WorktimeManager.main.Storage.StorageListener;
+import hu.bme.mit.WorktimeManager.network.NetworkDiscover;
+import hu.bme.mit.WorktimeManager.network.NetworkDiscover.NetworkDiscoverListener;
 
 //import javax.swing.table.DefaultTableModel;
 import java.awt.BorderLayout;
@@ -12,6 +14,7 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.util.ArrayList;
 
 import javax.swing.BoxLayout;
@@ -28,7 +31,8 @@ import javax.swing.table.TableModel;
 
 import com.sun.jmx.snmp.Timestamp;
 
-public class AppWindow extends JFrame implements StorageListener {
+public class AppWindow extends JFrame implements StorageListener,
+		NetworkDiscoverListener {
 
 	private static final long serialVersionUID = 5985303282449765289L;
 
@@ -41,6 +45,7 @@ public class AppWindow extends JFrame implements StorageListener {
 
 	private ArrayList<TableModelListener> listeners = new ArrayList<TableModelListener>();
 	private ArrayList<Object[]> data = new ArrayList<Object[]>();
+	private NetworkDiscover networkListener = new NetworkDiscover(this);
 
 	private class MyTableModel implements TableModel {
 
@@ -133,6 +138,7 @@ public class AppWindow extends JFrame implements StorageListener {
 	}
 
 	public AppWindow() {
+
 		mStorage.registerStorageListener(this);
 		// menu bar and menu item initialization
 		menu = new JMenuBar();
@@ -160,13 +166,7 @@ public class AppWindow extends JFrame implements StorageListener {
 		addNew.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent e) {
-				// Execute when button is pressed NETWORK DISCOVER
-				try {
-					Storage.saveStorage("probababa");
-				} catch (IOException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
+				networkListener.startListening();
 			}
 		});
 		reset.addActionListener(new ActionListener() {
@@ -210,5 +210,19 @@ public class AppWindow extends JFrame implements StorageListener {
 		TableModelEvent event = new TableModelEvent(mTableModel);
 		for (TableModelListener l : listeners)
 			l.tableChanged(event);
+	}
+
+	@Override
+	public void onDiscover(InetAddress address, NetworkDiscover networkDiscover) {
+		// TODO Auto-generated method stub
+		networkListener.startListening();
+
+	}
+
+	@Override
+	public void onDiscoveredTimeout(InetAddress address) {
+		// TODO Auto-generated method stub
+		networkListener.stopListening();
+
 	}
 }
