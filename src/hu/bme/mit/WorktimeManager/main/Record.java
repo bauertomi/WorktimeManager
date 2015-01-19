@@ -1,16 +1,14 @@
 package hu.bme.mit.WorktimeManager.main;
 
-import java.util.Calendar;
-
-import com.sun.jmx.snmp.Timestamp;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class Record {
 	private String mID;
-	private Timestamp mTimeStamp;
+	private Date mTimeStamp;
+	private SimpleDateFormat mDateFormat = new SimpleDateFormat("HH:mm:ss");
 
-	Calendar cal = Calendar.getInstance();
-
-	public Record(Message message, Timestamp timeStamp) {
+	public Record(Message message, Date timeStamp) {
 		mID = message.getID();
 		mTimeStamp = timeStamp;
 	}
@@ -19,19 +17,18 @@ public class Record {
 		mID = id;
 	}
 
-	public void setTimeStamp(Timestamp TimeStamp) {
-		mTimeStamp = TimeStamp;
+	public void setTimeStamp(Date timeStamp) {
+		mTimeStamp = timeStamp;
 	}
 
-	public Timestamp getTimeStamp() {
-		Timestamp time = new Timestamp();
-		return time;
+	public Date getTimeStamp() {
+		return mTimeStamp;
 	}
-
+	
 	public Object getColumn(int columnID) {
 		switch (columnID) {
 		case 0:
-			return mTimeStamp;
+			return mDateFormat.format(mTimeStamp);
 		case 1:
 			return mID;
 		default:

@@ -1,10 +1,18 @@
 package hu.bme.mit.WorktimeManager.network;
 
+import hu.bme.mit.WorktimeManager.main.Message;
+import hu.bme.mit.WorktimeManager.main.Record;
+import hu.bme.mit.WorktimeManager.main.Storage;
+
 import java.io.IOException;
-import java.io.ObjectInputStream;
+import java.io.InputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.nio.BufferUnderflowException;
+import java.nio.ByteBuffer;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -20,7 +28,7 @@ public abstract class NetworkHelper<ReceiveType, SendType> {
 	protected static final int PORT = 8766;
 
 	protected Socket mClientSocket;
-	private ObjectInputStream mInput;
+	private InputStream mInput;
 	private ObjectOutputStream mOutput;
 	private ReceiverThread mReceiverThread;
 	protected ArrayList<NetworkConnectionListener> mConnectionListeners = new ArrayList<>();
@@ -57,8 +65,7 @@ public abstract class NetworkHelper<ReceiveType, SendType> {
 		void onReceive(String data);
 	}
 
-	public void addConnectionListener(NetworkConnectionListener listener)
-			throws NullPointerException {
+	public void addConnectionListener(NetworkConnectionListener listener) throws NullPointerException {
 		if (listener == null) {
 			throw new NullPointerException();
 		}
@@ -73,8 +80,7 @@ public abstract class NetworkHelper<ReceiveType, SendType> {
 		}
 	}
 
-	public void addReceiveListener(NetworkReceiveListener listener)
-			throws NullPointerException {
+	public void addReceiveListener(NetworkReceiveListener listener) throws NullPointerException {
 		if (listener == null) {
 			throw new NullPointerException();
 		}
@@ -89,17 +95,11 @@ public abstract class NetworkHelper<ReceiveType, SendType> {
 		}
 	}
 
-	/**
-	 * A megadott tĂ­pusĂş adatok fogadĂˇsĂˇĂ©rt felelĹ‘s Thread
-	 * 
-	 * @param <ReceiveType>
-	 *            A vĂˇrt adatok tĂ­pusa
-	 */
-	@SuppressWarnings("hiding")
 	protected class ReceiverThread extends Thread {
 
 		private AtomicBoolean mRunning = new AtomicBoolean(true);
 		private ArrayList<NetworkReceiveListener> mListeners;
+		private Calendar mCalendar = Calendar.getInstance();
 
 		public ReceiverThread(ArrayList<NetworkReceiveListener> listeners) {
 			mListeners = listeners;
@@ -115,22 +115,53 @@ public abstract class NetworkHelper<ReceiveType, SendType> {
 					if (Thread.interrupted()) {
 						throw new InterruptedException();
 					}
-					@SuppressWarnings("unchecked")
-					// readUTF stringet olvas
-					String readString = mInput.readUTF();
-					if (mListeners != null) {
-						synchronized (NetworkHelper.this.mReceiveListeners) {
-							for (NetworkReceiveListener listener : mListeners) {
-								listener.onReceive(readString);
+					final byte[] buff = new byte[1024];
+					mInput.read(buff);
+					final ByteBuffer bb = ByteBuffer.wrap(buff);
+
+					while (bb.getInt(0) != 0xDEADBEEF) {
+						bb.get();
+					}
+
+					if (bb.getInt() == 0xDEADBEEF) {
+						byte chk = (byte) ((byte) 0xDE + (byte) 0xAD + (byte) 0xBE + (byte) 0xEF);
+						byte len = bb.get();
+						byte[] uidData = new byte[10];
+						bb.get(uidData);
+						byte checksum = bb.get();
+
+						chk += len;
+						for (byte b : uidData) {
+							chk += b;
+						}
+						if (chk == checksum) {
+
+							StringBuilder uidBuilder = new StringBuilder();
+							for (int i = len - 1; i > 0; i--) {
+								uidBuilder.append(Integer.toHexString(uidData[i]));
 							}
+
+							System.out.println("New RFID uid: " + uidBuilder.toString());
+
+							if (mListeners != null) {
+								synchronized (NetworkHelper.this.mReceiveListeners) {
+									for (NetworkReceiveListener listener : mListeners) {
+										listener.onReceive(uidBuilder.toString());
+									}
+								}
+							}
+						} else {
+							System.out.println("Packet received with wrong checksum.");
 						}
 					}
+
+				} catch (BufferUnderflowException e) {
+					// loop back
 				} catch (InterruptedException e) {
 					return;
 				} catch (Exception e) {
 					// e.printStackTrace();
-					System.err
-							.println("Stopped receiving data from the network.");
+					System.err.println("Stopped receiving data from the network.");
 					disconnect();
 					return;
 				}
@@ -145,7 +176,7 @@ public abstract class NetworkHelper<ReceiveType, SendType> {
 	protected void initCommunication() throws IOException {
 		mOutput = new ObjectOutputStream(mClientSocket.getOutputStream());
 		mOutput.flush();
-		mInput = new ObjectInputStream(mClientSocket.getInputStream());
+		mInput = mClientSocket.getInputStream();
 	}
 
 	/**

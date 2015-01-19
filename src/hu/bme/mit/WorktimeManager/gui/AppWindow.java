@@ -9,6 +9,8 @@ import hu.bme.mit.WorktimeManager.network.NetworkClient.NetworkClientListener;
 import hu.bme.mit.WorktimeManager.network.NetworkDiscover;
 import hu.bme.mit.WorktimeManager.network.NetworkDiscover.NetworkDiscoverListener;
 
+
+
 //import javax.swing.table.DefaultTableModel;
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -19,6 +21,8 @@ import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 
 import javax.swing.BoxLayout;
 import javax.swing.DefaultListModel;
@@ -140,7 +144,7 @@ public class AppWindow extends JFrame implements StorageListener,
 				record.setID((String) aValue);
 				break;
 			case 1:
-				record.setTimeStamp((Timestamp) aValue);
+				record.setTimeStamp((Date) aValue);
 
 			default:
 				break;
@@ -158,11 +162,9 @@ public class AppWindow extends JFrame implements StorageListener,
 		addNew = new JMenuItem("Add New");
 		reset = new JMenuItem("Reset");
 
-		Timestamp time = new Timestamp();
-
 		Message message = new Message("startup");
 
-		Record record = new Record(message, time);
+		Record record = new Record(message, Calendar.getInstance().getTime());
 
 		mAddresses = new DefaultListModel<>();
 		mAddressList = new JList<>(mAddresses);
@@ -262,9 +264,8 @@ public class AppWindow extends JFrame implements StorageListener,
 
 	@Override
 	public void onReceive(String data) {
-		Timestamp time = new Timestamp();
 		Message message = new Message(data);
-		Record record = new Record(message, time);
+		Record record = new Record(message, Calendar.getInstance().getTime());
 
 		mStorage.addRow(record);
 	}
