@@ -137,8 +137,8 @@ public abstract class NetworkHelper<ReceiveType, SendType> {
 						if (chk == checksum) {
 
 							StringBuilder uidBuilder = new StringBuilder();
-							for (int i = len - 1; i > 0; i--) {
-								uidBuilder.append(Integer.toHexString(uidData[i]));
+							for (int i = len-1; i >= 0; i--) {
+								uidBuilder.append(Integer.toHexString(uidData[i] & 0xFF));
 							}
 
 							System.out.println("New RFID uid: " + uidBuilder.toString());
