@@ -1,18 +1,12 @@
 package hu.bme.mit.WorktimeManager.network;
 
-import hu.bme.mit.WorktimeManager.main.Message;
-import hu.bme.mit.WorktimeManager.main.Record;
-import hu.bme.mit.WorktimeManager.main.Storage;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -99,7 +93,7 @@ public abstract class NetworkHelper<ReceiveType, SendType> {
 
 		private AtomicBoolean mRunning = new AtomicBoolean(true);
 		private ArrayList<NetworkReceiveListener> mListeners;
-		private Calendar mCalendar = Calendar.getInstance();
+		//private Calendar mCalendar = Calendar.getInstance();
 
 		public ReceiverThread(ArrayList<NetworkReceiveListener> listeners) {
 			mListeners = listeners;

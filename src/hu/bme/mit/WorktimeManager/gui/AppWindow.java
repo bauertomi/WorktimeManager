@@ -201,9 +201,6 @@ public class AppWindow extends JFrame implements StorageListener,
 		JTable table = new JTable(mTableModel);
 		table.setModel(mTableModel);
 
-		mStorage.addRow(record);
-		message.setID("x");
-
 		JScrollPane scrollPane = new JScrollPane(table);
 		pCenter.add(scrollPane, BorderLayout.CENTER);
 		pCenter.add(mAddressList);
@@ -228,6 +225,18 @@ public class AppWindow extends JFrame implements StorageListener,
 
 		// TODO Ide kellenek a listenerek, + az onnan jovo adatot storage-be
 		// rakni!
+		
+		/**
+		 * Az a baj, hogy amikor beolvassa es uj recordot csinal azonnal kimenti a txt-be, ujra beolvassa es vegtelen ciklus...
+		 */
+		try {
+			mStorage.readStorage();
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		mStorage.addRow(record);
+		mStorage.addRow(record);	
 
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 	}
@@ -239,6 +248,16 @@ public class AppWindow extends JFrame implements StorageListener,
 		TableModelEvent event = new TableModelEvent(mTableModel);
 		for (TableModelListener l : listeners)
 			l.tableChanged(event);
+		
+		/**
+		 * Itt hivodik meg a mentes. Itt kell? Itt is es a storage-ban is mukodik.
+		 */
+		try {
+			mStorage.saveStorage(record);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	@Override

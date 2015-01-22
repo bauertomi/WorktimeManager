@@ -16,7 +16,11 @@ public class Record {
 	public void setID(String id) {
 		mID = id;
 	}
-
+	
+	public String getID(){
+		return mID;
+	}
+	
 	public void setTimeStamp(Date timeStamp) {
 		mTimeStamp = timeStamp;
 	}
