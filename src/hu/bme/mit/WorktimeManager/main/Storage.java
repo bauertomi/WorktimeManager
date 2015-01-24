@@ -1,7 +1,5 @@
 package hu.bme.mit.WorktimeManager.main;
 
-import hu.bme.mit.WorktimeManager.gui.AppWindow;
-
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -18,6 +16,7 @@ public class Storage {
 	private ArrayList<Record> mRecords = new ArrayList<Record>();
 	private ArrayList<StorageListener> mListeners = new ArrayList<StorageListener>();
 	private static Storage instance = null;
+	private boolean mIsLoading = false;
 
 	public interface StorageListener {
 		public void onRowAdded(Record record);
@@ -53,17 +52,17 @@ public class Storage {
 			storageListener.onRowAdded(record);
 		}
 
-		/**
-		 * Itt hivodik meg a mentes. Itt kell? Itt is es a storage-ban is
-		 * mukodik.
-		 */
-		/*
-		 * try { instance.saveStorage(record); } catch (IOException e) { // TODO
-		 * Auto-generated catch block e.printStackTrace(); }
-		 */
+		if (!mIsLoading) {
+			try {
+				Storage.getInstance().saveStorage(record);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 	}
 
-	public static void saveStorage(Record record) throws IOException {
+	public void saveStorage(Record record) throws IOException {
 
 		File file = new File(STORAGE_PATH);
 
@@ -83,7 +82,7 @@ public class Storage {
 
 	}
 
-	public static void readStorage() throws IOException {
+	public void readStorage() throws IOException {
 
 		BufferedReader br = null;
 		String sCurrentLine;
@@ -91,6 +90,7 @@ public class Storage {
 		Date date = new Date();
 		String text = new String();
 
+		mIsLoading = true;
 		br = new BufferedReader(new FileReader(STORAGE_PATH));
 
 		while ((sCurrentLine = br.readLine()) != null) {
@@ -108,9 +108,10 @@ public class Storage {
 			text = sCurrentLine.substring(sCurrentLine.lastIndexOf('-') + 1);
 
 			Record record = new Record(text, date);
-			instance.addRow(record);
+			Storage.getInstance().addRow(record);
 		}
 		br.close();
+		mIsLoading = false;
 	}
 
 }

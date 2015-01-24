@@ -228,7 +228,8 @@ public class AppWindow extends JFrame implements StorageListener,
 
 			public void actionPerformed(ActionEvent e) {
 				// Execute when button is pressed NETWORK DISCOVER
-				networkListener.stopListening();
+				//networkListener.stopListening();
+				Storage.getInstance().addRow(new Record("Valami", Calendar.getInstance().getTime()));
 			}
 		});
 
@@ -247,17 +248,8 @@ public class AppWindow extends JFrame implements StorageListener,
 		Object[] obj = new Object[] { record };
 		data.add(obj);
 		TableModelEvent event = new TableModelEvent(mTableModel);
-		for (TableModelListener l : listeners)
+		for (TableModelListener l : listeners) {
 			l.tableChanged(event);
-		
-		/**
-		 * Itt hivodik meg a mentes. Itt kell? Itt is es a storage-ban is mukodik.
-		 */
-		try {
-			mStorage.saveStorage(record);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 	}
 
