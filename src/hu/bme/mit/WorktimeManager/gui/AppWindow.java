@@ -208,11 +208,20 @@ public class AppWindow extends JFrame implements StorageListener,
 		this.getContentPane().add(pCenter, "Center");
 		this.getContentPane().add(pNorth, "North");
 		this.setTitle("Working time manager");
+		
+		networkListener.startListening();
 
 		addNew.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent e) {
 				networkListener.startListening();
+				try {
+					mStorage.readStorage();
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				
 			}
 		});
 		reset.addActionListener(new ActionListener() {
@@ -226,15 +235,7 @@ public class AppWindow extends JFrame implements StorageListener,
 		// TODO Ide kellenek a listenerek, + az onnan jovo adatot storage-be
 		// rakni!
 		
-		/**
-		 * Az a baj, hogy amikor beolvassa es uj recordot csinal azonnal kimenti a txt-be, ujra beolvassa es vegtelen ciklus...
-		 */
-		try {
-			mStorage.readStorage();
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
+
 		mStorage.addRow(record);
 		mStorage.addRow(record);	
 
@@ -271,6 +272,9 @@ public class AppWindow extends JFrame implements StorageListener,
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		
+
+		
 	}
 
 	@Override

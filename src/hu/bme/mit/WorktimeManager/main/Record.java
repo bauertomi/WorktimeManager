@@ -12,6 +12,11 @@ public class Record {
 		mID = message.getID();
 		mTimeStamp = timeStamp;
 	}
+	
+	public Record(String string, Date timeStamp) {
+		mID = string;
+		mTimeStamp = timeStamp;
+	}
 
 	public void setID(String id) {
 		mID = id;

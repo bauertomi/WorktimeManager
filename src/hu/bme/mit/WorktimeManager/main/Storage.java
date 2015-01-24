@@ -46,31 +46,29 @@ public class Storage {
 		return mRecords.get(id);
 	}
 
-
 	public void addRow(Record record) {
 		mRecords.add(record);
 
 		for (StorageListener storageListener : mListeners) {
 			storageListener.onRowAdded(record);
 		}
-		
+
 		/**
-		 * Itt hivodik meg a mentes. Itt kell? Itt is es a storage-ban is mukodik.
+		 * Itt hivodik meg a mentes. Itt kell? Itt is es a storage-ban is
+		 * mukodik.
 		 */
-		/*try {
-			instance.saveStorage(record);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}*/
+		/*
+		 * try { instance.saveStorage(record); } catch (IOException e) { // TODO
+		 * Auto-generated catch block e.printStackTrace(); }
+		 */
 	}
 
 	public static void saveStorage(Record record) throws IOException {
 
 		File file = new File(STORAGE_PATH);
-		
+
 		SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
-		String line = sdf.format(record.getTimeStamp()) + "||||" + record.getID();
+		String line = sdf.format(record.getTimeStamp()) + "-" + record.getID();
 
 		if (!file.exists()) {
 			file.createNewFile();
@@ -91,63 +89,28 @@ public class Storage {
 		String sCurrentLine;
 		SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
 		Date date = new Date();
-		Message message = new Message(null);
+		String text = new String();
 
 		br = new BufferedReader(new FileReader(STORAGE_PATH));
 
-		/**
-		 * Ez itt meg egyszerusodik, de legalabb mukodik
-		 */
 		while ((sCurrentLine = br.readLine()) != null) {
-			
-			String[] l = sCurrentLine.split("||||");
-			String text = l[1];
+
+			String[] l = sCurrentLine.split("-");
+
 			try {
-				sdf.format((Date)sdf.parse(l[0]));
+				sdf.format((Date) sdf.parse(l[0]));
 				date = sdf.parse(l[0]);
-				System.out.println(sdf.toString());
 			} catch (ParseException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			
-			message.setID(text);		
-			Record record = new Record(message, date);
+
+			text = sCurrentLine.substring(sCurrentLine.lastIndexOf('-') + 1);
+
+			Record record = new Record(text, date);
 			instance.addRow(record);
 		}
 		br.close();
 	}
 
 }
-
-/*	public static void readStorage() throws IOException {
-
-		BufferedReader br = null;
-		String sCurrentLine;
-		SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
-		Date date = new Date();
-		Message message = new Message(null);
-		Record record = new Record(message, date);
-
-		br = new BufferedReader(new FileReader(STORAGE_PATH));
-
-
-		while ((sCurrentLine = br.readLine()) != null) {
-			
-			String[] l = sCurrentLine.split("||||");
-			String text = l[1];
-			try {
-				sdf.format((Date)sdf.parse(l[0]));
-				date = sdf.parse(l[0]);
-			} catch (ParseException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			
-			message.setID(text);
-			record.setID(text);
-			record.setTimeStamp(date);
-			instance.addRow(record);
-		}
-		br.close();
-	}*/
