@@ -1,5 +1,7 @@
 package hu.bme.mit.WorktimeManager.network;
 
+import hu.bme.mit.WorktimeManager.main.Message;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectOutputStream;
@@ -93,7 +95,8 @@ public abstract class NetworkHelper<ReceiveType, SendType> {
 
 		private AtomicBoolean mRunning = new AtomicBoolean(true);
 		private ArrayList<NetworkReceiveListener> mListeners;
-		//private Calendar mCalendar = Calendar.getInstance();
+
+		// private Calendar mCalendar = Calendar.getInstance();
 
 		public ReceiverThread(ArrayList<NetworkReceiveListener> listeners) {
 			mListeners = listeners;
@@ -111,44 +114,22 @@ public abstract class NetworkHelper<ReceiveType, SendType> {
 					}
 					final byte[] buff = new byte[1024];
 					mInput.read(buff);
-					final ByteBuffer bb = ByteBuffer.wrap(buff);
 
-					while (bb.getInt(0) != 0xDEADBEEF) {
-						bb.get();
-					}
+					final Message message = Message.parse(buff);
 
-					if (bb.getInt() == 0xDEADBEEF) {
-						byte chk = (byte) ((byte) 0xDE + (byte) 0xAD + (byte) 0xBE + (byte) 0xEF);
-						byte len = bb.get();
-						byte[] uidData = new byte[10];
-						bb.get(uidData);
-						byte checksum = bb.get();
+					if (message != null) {
+						System.out.println("New RFID uid: " + message.getID());
 
-						chk += len;
-						for (byte b : uidData) {
-							chk += b;
-						}
-						if (chk == checksum) {
-
-							StringBuilder uidBuilder = new StringBuilder();
-							for (int i = len-1; i >= 0; i--) {
-								uidBuilder.append(Integer.toHexString(uidData[i] & 0xFF));
-							}
-
-							System.out.println("New RFID uid: " + uidBuilder.toString());
-
-							if (mListeners != null) {
-								synchronized (NetworkHelper.this.mReceiveListeners) {
-									for (NetworkReceiveListener listener : mListeners) {
-										listener.onReceive(uidBuilder.toString());
-									}
+						if (mListeners != null) {
+							synchronized (NetworkHelper.this.mReceiveListeners) {
+								for (NetworkReceiveListener listener : mListeners) {
+									listener.onReceive(message.getID());
 								}
 							}
-						} else {
-							System.out.println("Packet received with wrong checksum.");
 						}
+					} else {
+						System.out.println("Bad packet received.");
 					}
-
 				} catch (BufferUnderflowException e) {
 					// loop back
 				} catch (InterruptedException e) {
