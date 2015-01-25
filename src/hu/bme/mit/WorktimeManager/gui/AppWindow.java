@@ -9,28 +9,19 @@ import hu.bme.mit.WorktimeManager.network.NetworkClient.NetworkClientListener;
 import hu.bme.mit.WorktimeManager.network.NetworkDiscover;
 import hu.bme.mit.WorktimeManager.network.NetworkDiscover.NetworkDiscoverListener;
 
-
-
 //import javax.swing.table.DefaultTableModel;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
-import javax.swing.BoxLayout;
 import javax.swing.DefaultListModel;
 import javax.swing.JFrame;
 import javax.swing.JList;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -50,10 +41,7 @@ public class AppWindow extends JFrame implements StorageListener,
 	protected static final Font mStandardFont = new Font("Serif", Font.PLAIN,
 			20);
 
-	private JMenuBar menu;
-	private JMenu m1;
-	private JMenuItem addNew, reset;
-	private JPanel pMain, pNorth, pCenter;
+	private JPanel pNorth, pCenter;
 	private MyTableModel mTableModel = new MyTableModel();
 	private Storage mStorage = Storage.getInstance();
 
@@ -156,11 +144,6 @@ public class AppWindow extends JFrame implements StorageListener,
 	public AppWindow() {
 
 		mStorage.registerStorageListener(this);
-		// menu bar and menu item initialization
-		menu = new JMenuBar();
-		m1 = new JMenu("Detect Server");
-		addNew = new JMenuItem("Add New");
-		reset = new JMenuItem("Reset");
 
 		Message message = new Message("startup");
 
@@ -176,7 +159,6 @@ public class AppWindow extends JFrame implements StorageListener,
 			@Override
 			public void valueChanged(ListSelectionEvent e) {
 				final String address = mAddressList.getSelectedValue();
-				// mAddressEdit.setText((address != null) ? address :
 				// PLACEHOLDER);
 			}
 		});
@@ -186,17 +168,10 @@ public class AppWindow extends JFrame implements StorageListener,
 		pNorth = new JPanel();
 		pCenter = new JPanel();
 
-		// add menu item to menu
-
-		m1.add(addNew);
-		m1.add(reset);
-		menu.add(m1);
-
-		pCenter.setLayout(new BoxLayout(pMain, BoxLayout.Y_AXIS));
-		pCenter.setLayout(new GridLayout(1, 1));
+		// pCenter.setLayout(new BoxLayout(pMain, BoxLayout.Y_AXIS));
+		// pCenter.setLayout(new GridLayout(1, 1));
 
 		pNorth.setBackground(Color.white);
-		pNorth.add(menu);
 
 		JTable table = new JTable(mTableModel);
 		table.setModel(mTableModel);
@@ -206,39 +181,18 @@ public class AppWindow extends JFrame implements StorageListener,
 		pCenter.add(mAddressList);
 
 		this.getContentPane().add(pCenter, "Center");
-		this.getContentPane().add(pNorth, "North");
+		// this.getContentPane().add(pNorth, "North");
 		this.setTitle("Working time manager");
-		
+
 		networkListener.startListening();
 
-		addNew.addActionListener(new ActionListener() {
-
-			public void actionPerformed(ActionEvent e) {
-				networkListener.startListening();
-				try {
-					mStorage.readStorage();
-				} catch (IOException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-				
-			}
-		});
-		reset.addActionListener(new ActionListener() {
-
-			public void actionPerformed(ActionEvent e) {
-				// Execute when button is pressed NETWORK DISCOVER
-				//networkListener.stopListening();
-				Storage.getInstance().addRow(new Record("Valami", Calendar.getInstance().getTime()));
-			}
-		});
-
-		// TODO Ide kellenek a listenerek, + az onnan jovo adatot storage-be
-		// rakni!
-		
-
-		mStorage.addRow(record);
-		mStorage.addRow(record);	
+		try {
+			mStorage.readStorage();
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		// mStorage.addRow(record);
 
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 	}
@@ -264,9 +218,7 @@ public class AppWindow extends JFrame implements StorageListener,
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
 
-		
 	}
 
 	@Override
