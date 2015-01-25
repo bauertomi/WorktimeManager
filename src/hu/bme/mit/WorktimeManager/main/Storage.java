@@ -3,6 +3,7 @@ package hu.bme.mit.WorktimeManager.main;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -91,26 +92,30 @@ public class Storage {
 		String text = new String();
 
 		mIsLoading = true;
-		br = new BufferedReader(new FileReader(STORAGE_PATH));
+		try {
+			br = new BufferedReader(new FileReader(STORAGE_PATH));
 
-		while ((sCurrentLine = br.readLine()) != null) {
+			while ((sCurrentLine = br.readLine()) != null) {
 
-			String[] l = sCurrentLine.split("-");
+				String[] l = sCurrentLine.split("-");
 
-			try {
-				sdf.format((Date) sdf.parse(l[0]));
-				date = sdf.parse(l[0]);
-			} catch (ParseException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				try {
+					sdf.format((Date) sdf.parse(l[0]));
+					date = sdf.parse(l[0]);
+				} catch (ParseException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+
+				text = sCurrentLine.substring(sCurrentLine.lastIndexOf('-') + 1);
+
+				Record record = new Record(text, date);
+				Storage.getInstance().addRow(record);
 			}
-
-			text = sCurrentLine.substring(sCurrentLine.lastIndexOf('-') + 1);
-
-			Record record = new Record(text, date);
-			Storage.getInstance().addRow(record);
+			br.close();
+		} catch (FileNotFoundException e) {
 		}
-		br.close();
+
 		mIsLoading = false;
 	}
 
